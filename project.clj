@@ -11,4 +11,11 @@
                                    :creds :gpg}}
 
   :dependencies [[org.clojure/clojure "1.7.0"]
+<<<<<<< HEAD
                  [com.datomic/datomic-pro "0.9.5327" :exclusions [joda-time]]])
+=======
+                 [com.datomic/datomic-pro "0.9.5327"]
+                 [ring "1.4.0"]
+                 [compojure "1.4.0"]]
+  :main prop-shop.core)
+>>>>>>> Added web layer initialization. Fixes #1
