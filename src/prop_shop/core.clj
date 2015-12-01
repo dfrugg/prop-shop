@@ -1,20 +1,19 @@
 (ns prop-shop.core
   (:use compojure.core
         ring.adapter.jetty)
-  (:require [compojure.route :as route]))
+  (:require [compojure.route :as route]
+            [ring.util.response :as response]
+            [ring.middleware.resource :refer [wrap-resource]]))
 
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
 
 (defroutes main-routes
-  (GET "/" [] "<h1>Wassup?</h1>")
-  (route/not-found "<h1>Dammit!</h1>"))
+  (GET "/" [] (response/redirect "main.htm"))
+  (route/not-found "<h1>Not Found!</h1>"))
 
 (defn app
   []
-  (-> main-routes))
+  (-> main-routes
+      (wrap-resource "public")))
 
 (defn start-server
   []

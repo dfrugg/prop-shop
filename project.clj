@@ -11,11 +11,14 @@
                                    :creds :gpg}}
 
   :dependencies [[org.clojure/clojure "1.7.0"]
-<<<<<<< HEAD
-                 [com.datomic/datomic-pro "0.9.5327" :exclusions [joda-time]]])
-=======
-                 [com.datomic/datomic-pro "0.9.5327"]
+                 [com.datomic/datomic-pro "0.9.5327" :exclusions [joda-time]]
                  [ring "1.4.0"]
                  [compojure "1.4.0"]]
+
+  :plugins [[lein-ring "0.9.7"]]
+
+  :ring {:handler prop-shop.core/app
+         :auto-reload? true
+         :auto-refresh? true}
+
   :main prop-shop.core)
->>>>>>> Added web layer initialization. Fixes #1
