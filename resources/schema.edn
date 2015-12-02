@@ -1,0 +1,75 @@
+[ ;; Generic Attributes
+
+  ;; Category - String
+  {:db/id #db/id[:db.part/db]
+   :db/ident :category
+   :db/valueType :db.type/string
+   :db/cardinality :db.cardinality/one
+   :db.install/_attribute :db.part/db}
+
+  ;; Tags - [String]
+  {:db/id #db/id[:db.part/db]
+   :db/ident :tags
+   :db/valueType :db.type/string
+   :db/cardinality :db.cardinality/many
+   :db.install/_attribute :db.part/db}
+
+  ;; Encrypted - Boolean
+  {:db/id #db/id[:db.part/db]
+   :db/ident :encrypted
+   :db/valueType :db.type/boolean
+   :db/cardinality :db.cardinality/one
+   :db.install/_attribute :db.part/db}
+
+  ;; Active On - Instant
+  {:db/id #db/id[:db.part/db]
+   :db/ident :active-on
+   :db/valueType :db.type/instant
+   :db/cardinality :db.cardinality/one
+   :db.install/_attribute :db.part/db}
+
+  ;; Inactive On - Instant
+  {:db/id #db/id[:db.part/db]
+   :db/ident :inactive-on
+   :db/valueType :db.type/instant
+   :db/cardinality :db.cardinality/one
+   :db.install/_attribute :db.part/db}
+
+
+  ;; Property Attributes
+
+  ;; Prop Key - String
+  {:db/id #db/id[:db.part/db]
+   :db/ident :key
+   :db/valueType :db.type/string
+   :db/cardinality :db.cardinality/one
+   :db.install/_attribute :db.part/db}
+
+  ;; Prop Value - String
+  {:db/id #db/id[:db.part/db]
+   :db/ident :value
+   :db/valueType :db.type/string
+   :db/cardinality :db.cardinality/one
+   :db.install/_attribute :db.part/db}
+
+
+  ;; Participants - [Ref]
+  {:db/id #db/id[:db.part/db]
+   :db/ident :participants
+   :db/valueType :db.type/ref
+   :db/cardinality :db.cardinality/many
+   :db.install/_attribute :db.part/db}
+
+
+  ;; Functions
+
+  ;; Increment Functions
+  ;; Usage - [:inc entity-id :attribute amountToIncrementBy]
+  {:db/id #db/id [:db.part/user]
+   :db/ident :inc
+   :db/doc "Data function that increments value of attribute a by amount."
+   :db/fn #db/fn {:lang "clojure"
+                  :params [db e a amount]
+                  :code [[:db/add e a
+                          (-> (d/entity db e) a (+ amount))]]}}
+]

@@ -7,6 +7,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
+
   :repositories {"my.datomic.com" {:url "https://my.datomic.com/repo"
                                    :creds :gpg}}
 
@@ -15,7 +16,8 @@
                  [ring "1.4.0"]
                  [compojure "1.4.0"]]
 
-  :plugins [[lein-ring "0.9.7"]]
+  :plugins [[lein-codox "0.9.0"]
+            [lein-ring "0.9.7"]]
 
   :ring {:handler prop-shop.core/app
          :auto-reload? true
