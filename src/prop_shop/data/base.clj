@@ -121,3 +121,15 @@
                              :active-on min-date
                              :inactive-on max-date})])
       (transact->entity temp-id {}))))
+
+
+(defn get-entities-by-type
+  "Gets all entities of the provided type."
+  {:added "0.1"}
+  [type]
+  (-> (query (d/db conn)
+             {}
+             '{:find [?e]
+               :in [$ ?t]
+               :where [[?e :type ?t]]}
+             type)))

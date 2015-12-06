@@ -11,3 +11,10 @@
   (b/add-entity
     {:name name
      :type :organization}))
+
+
+(defn get-organizations
+  "Gets all Organizations."
+  {:added "0.1"}
+  []
+  (b/get-entities-by-type :organization))
