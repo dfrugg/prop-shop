@@ -124,7 +124,7 @@
 
 
 (defn get-entities-by-type
-  "Gets all entities of the provided type."
+  "Retrieves all entities of the provided type."
   {:added "0.1"}
   [type]
   (-> (query (d/db conn)
@@ -133,3 +133,15 @@
                :in [$ ?t]
                :where [[?e :type ?t]]}
              type)))
+
+
+(defn get-entity-by-uuid
+  "Retrieves the entity with the provided UUID."
+  {:added "0.1"}
+  [uuid]
+  (-> (query (d/db conn)
+             {}
+             '{:find [?e]
+               :in [$ ?u]
+               :where [[?e :uuid ?u]]}
+             uuid)))
