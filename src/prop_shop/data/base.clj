@@ -14,6 +14,17 @@
             (d/create-database uri)
             (d/connect uri)))
 
+
+(def max-date
+  "Provides a Date as far in the future as possible.  For used with inactive-on value operations that do not expire."
+  (java.util.Date. (Long/MAX_VALUE)))
+
+
+(def min-date
+  "Provides a Date as far in the past as possible.  For used with active-on value operations that always exist."
+  (java.util.Date. (Long/MIN_VALUE)))
+
+
 ;; Load The Data Schema Into Datomic
 (doseq [schematoms (Util/readAll (io/reader (io/resource "schema.edn")))]
   (d/transact conn schematoms))
@@ -98,13 +109,15 @@
     (resolve-entity-id id path-map db)))
 
 
-
-
-
-(def max-date
-  "Provides a Date as far in the future as possible.  For used with inactive-on value operations that do not expire."
-  (java.util.Date. (Long/MAX_VALUE)))
-
-(def min-date
-  "Provides a Date as far in the past as possible.  For used with active-on value operations that always exist."
-  (java.util.Date. (Long/MIN_VALUE)))
+(defn add-entity
+  "Takes an entity and persists it.  The active period for the entity is set from
+   as far in the past to as far in the future as possible."
+  {:added "0.1"}
+  [entity]
+  (let [temp-id (d/tempid :db.part/user)]
+    (-> (d/transact conn [(merge entity
+                            {:db/id temp-id
+                             :uuid (d/squuid)
+                             :active-on min-date
+                             :inactive-on max-date})])
+      (transact->entity temp-id {}))))
