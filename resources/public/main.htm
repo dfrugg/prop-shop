@@ -1,6 +1,18 @@
 <html>
-
-    <body>
-        hello
-    </body>
+	<head>
+		<title>Prop Shop - Property Management for Applications</title>
+		<script src="https://code.angularjs.org/tools/system.js"></script>
+		<script src="https://code.angularjs.org/tools/typescript.js"></script>
+		<script src="https://code.angularjs.org/2.0.0-alpha.44/angular2.dev.js"></script>
+		<script>
+          System.config({
+            transpiler: 'typescript',
+            typescriptOptions: { emitDecoratorMetadata: true }
+          });
+          System.import('./main.ts');
+		</script>
+	</head>
+	<body>
+		<prop-shop>loading...</prop-shop>
+	</body>
 </html>
