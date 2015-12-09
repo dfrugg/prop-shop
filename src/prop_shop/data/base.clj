@@ -71,7 +71,7 @@
 (defn resolve-entity-id
   "Takes the internal ID of an entity, reducing instructions, and an optional
    database value reference, and resolves it to a map of the entity."
-  ([entity-id path-map] (resolve-entity-id path-map (db)))
+  ([entity-id path-map] (resolve-entity-id entity-id path-map (db)))
   ([entity-id path-map db]
     (reduce-entity (d/entity db entity-id) path-map)))
 
