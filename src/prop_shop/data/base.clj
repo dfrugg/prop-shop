@@ -94,11 +94,9 @@
 
 (defn query!
   ([path-map statement]
-    (let [results (d/q statement (db))]
-      (resolve-entity-ids results path-map db)))
+    (query (db) path-map statement))
   ([path-map statement & args]
-    (let [results (apply d/q statement (db) args)]
-      (resolve-entity-ids results path-map db))))
+    (apply query (db) path-map statement args)))
 
 
 (defn transact->entity
