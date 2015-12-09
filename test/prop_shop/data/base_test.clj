@@ -112,3 +112,40 @@
       (is (nil? (:lucky-numbers result)))
       (is (nil? (:aliases result)))
       (is (nil? (:father result))))))
+
+
+(deftest test-add-entity
+  (testing "Testing the adding data."
+    (let [data {:type :test :name "Bobby Su" :encrypted false}
+          entity (add-entity data)]
+      (is (:id entity))
+      (is (:uuid entity))
+      (is (:active-on  entity))
+      (is (:inactive-on  entity))
+      (is (= (select-keys entity (keys data)) data)))))
+
+
+(deftest test-get-entities-by-type
+  (testing "Testing getting entities by their :type."
+    (let [data {:type :test :name "Bobby Su" :encrypted false}
+          _ (add-entity data)
+          entity (first (get-entities-by-type :test))]
+      (is (:id entity))
+      (is (:uuid entity))
+      (is (:active-on  entity))
+      (is (:inactive-on  entity))
+      (is (= (select-keys entity (keys data)) data)))))
+
+
+(deftest test-get-entity-by-uuid
+  (testing "Testing getting an entity by its UUID."
+    (let [data {:type :test :name "Bobby Su" :encrypted false}
+          uuid (:uuid (add-entity data))
+          entity (first (get-entity-by-uuid uuid))]
+      (is (:id entity))
+      (is (:uuid entity))
+      (is (:active-on  entity))
+      (is (:inactive-on  entity))
+      (is (= (select-keys entity (keys data)) data)))))
+
+
