@@ -155,7 +155,7 @@
   (testing "Testing getting an entity by its UUID."
     (let [data {:type :test :name "Bobby Su" :encrypted false}
           uuid (:uuid (add-entity data))
-          entity (first (get-entity-by-uuid uuid))]
+          entity (get-entity-by-uuid uuid)]
       (is (:id entity))
       (is (:uuid entity))
       (is (:active-on  entity))
@@ -163,3 +163,29 @@
       (is (= (select-keys entity (keys data)) data)))))
 
 
+(deftest test-update-entity-by-uuid
+  (testing "Testing updating an entity using its UUID."
+    (let [data {:type :test :name "Bobby Su" :encrypted false}
+          mod-data {:type :mod-data :name "Su Bobby" :encrypted true}
+          entity (add-entity data)
+          uuid (:uuid entity)]
+      (is (= (select-keys entity (keys data)) data))
+      (is (= (select-keys (update-entity-by-uuid uuid mod-data) (keys mod-data)) mod-data)))))
+
+
+(deftest test-update-entity-by-id
+  (testing "Testing updating an entity using its internal ID."
+    (let [data {:type :test :name "Bobby Su" :encrypted false}
+          mod-data {:type :mod-data :name "Su Bobby" :encrypted true}
+          entity (add-entity data)
+          id (:id entity)]
+      (is (= (select-keys entity (keys data)) data))
+      (is (= (select-keys (update-entity-by-id id mod-data) (keys mod-data)) mod-data)))))
+
+
+(deftest test-uuid->id
+  (testing "Testing determining the internal ID of an entity using its UUID."
+    (let [entity (add-entity {:type :test})
+          id (:id entity)
+          uuid (:uuid entity)]
+      (is (= (uuid->id uuid) id)))))

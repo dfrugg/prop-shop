@@ -107,6 +107,16 @@
     (resolve-entity-id id path-map db)))
 
 
+(defn uuid->id
+  "Takes the UUID of an entity and returns the internal id."
+  [uuid]
+  (d/q '[:find ?e .
+         :in $ ?u
+         :where [?e :uuid ?u]]
+    (db)
+    uuid))
+
+
 (defn add-entity
   "Takes an entity and persists it.  The active period for the entity is set from
    as far in the past to as far in the future as possible."
@@ -135,13 +145,38 @@
 
 
 (defn get-entity-by-uuid
-  "Retrieves the entity with the provided UUID."
+  "Takes the UUID of an entity and an optional database value and returns the entity.
+   If the database value is not provided, the latest will be used."
   {:added "0.1"}
   ([uuid] (get-entity-by-uuid (db) uuid))
   ([db uuid]
-   (query db
-          {}
-          '{:find [?e]
-            :in [$ ?u]
-            :where [[?e :uuid ?u]]}
-          uuid)))
+   (first
+     (query db
+            {}
+            '{:find [?e]
+              :in [$ ?u]
+              :where [[?e :uuid ?u]]}
+            uuid))))
+
+
+(defn update-entity-by-id
+  "Takes the internal ID of an entity and a map of attributes and values
+   and updates those attribute values in the entity."
+  {:added "0.1"}
+  ([id data] (update-entity-by-id id data {}))
+  ([id data path-map]
+   (d/transact conn [(merge {:db/id id} data)])
+   (resolve-entity-id id path-map)))
+
+
+(defn update-entity-by-uuid
+  "Takes the UUID of an entity and a map of attributes and values and updates those
+   attribute values in the entity."
+  {:added "0.1"}
+  ([uuid data] (update-entity-by-uuid uuid data {}))
+  ([uuid data path-map] (-> uuid (uuid->id) (update-entity-by-id data path-map))))
+
+
+
+
+
