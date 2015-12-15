@@ -21,7 +21,14 @@
 
 
 (defn get-organization-by-uuid
-  "Retrieves the Organization with the provided UUID."
+  "Retrieves an Organization by its UUID."
   {:added "0.1"}
   [uuid]
   (b/get-entity-by-uuid uuid))
+
+
+(defn rename-organization
+	"Renames the Organization specified by the UUID with the provided name."
+	{:added "0.1"}
+	[uuid name]
+	(b/update-entity-by-uuid uuid {:name name}))
