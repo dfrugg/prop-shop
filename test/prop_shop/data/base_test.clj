@@ -189,3 +189,13 @@
           id (:id entity)
           uuid (:uuid entity)]
       (is (= (uuid->id uuid) id)))))
+
+
+(deftest test-deactivate-entity
+  (testing "Testing setting the inactive date of an entity."
+    (let [data {:type :test :name "Bobby Su" :encrypted false}
+          uuid (:uuid (add-entity data))
+          date (java.util.Date.)]
+      (is (not= (:inactive-on (get-entity-by-uuid uuid)) date))
+      (is (= (:inactive-on (deactivate-entity uuid date)) date))
+      (is (deactivate-entity uuid date)))))

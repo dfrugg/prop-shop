@@ -177,6 +177,9 @@
   ([uuid data path-map] (-> uuid (uuid->id) (update-entity-by-id data path-map))))
 
 
-
-
-
+(defn deactivate-entity
+  "Takes the UUID of an entity and an optional date, and sets the inactive date of the entity.
+   If the date is not provided, the current date and time will be used."
+  {:added "0.1"}
+  ([uuid] (deactivate-entity uuid (java.util.Date.)))
+  ([uuid date] (update-entity-by-uuid uuid {:inactive-on date})))
