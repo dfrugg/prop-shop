@@ -11,3 +11,10 @@
   (b/add-entity
     {:name name
      :type :environment}))
+
+
+(defn get-environments
+  "Retrieves all Environments."
+  {:added "0.1"}
+  []
+  (b/get-entities-by-type :environment))
