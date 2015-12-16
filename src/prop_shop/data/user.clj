@@ -4,13 +4,18 @@
   (:require [prop-shop.data.base :as b]))
 
 
+(def user-path-map {})
+
+
 (defn add-user
   "Persists a new User with the provided name."
   {:added "0.1"}
-  [name]
-  (b/add-entity
-    {:name name
-     :type :user}))
+  ([name organization-uuid] (add-user name organization-uuid user-path-map))
+  ([name organization-uuid path-map]
+     (b/add-entity
+       {:name name
+        :type :user}
+       path-map)))
 
 
 (defn get-users
