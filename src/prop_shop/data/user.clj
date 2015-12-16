@@ -11,3 +11,10 @@
   (b/add-entity
     {:name name
      :type :user}))
+
+
+(defn get-users
+  "Retrieves all Users."
+  {:added "0.1"}
+  []
+  (b/get-entities-by-type :user))
