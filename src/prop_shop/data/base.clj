@@ -121,14 +121,15 @@
   "Takes an entity and persists it.  The active period for the entity is set from
    as far in the past to as far in the future as possible."
   {:added "0.1"}
-  [entity]
-  (let [temp-id (d/tempid :db.part/user)]
-    (-> (d/transact conn [(merge entity
-                            {:db/id temp-id
-                             :uuid (d/squuid)
-                             :active-on min-date
-                             :inactive-on max-date})])
-      (transact->entity temp-id {}))))
+  ([entity] (add-entity entity {}))
+  ([entity path-map]
+    (let [temp-id (d/tempid :db.part/user)]
+      (-> (d/transact conn [(merge entity
+                              {:db/id temp-id
+                               :uuid (d/squuid)
+                               :active-on min-date
+                               :inactive-on max-date})])
+        (transact->entity temp-id path-map)))))
 
 
 (defn get-entities-by-type
