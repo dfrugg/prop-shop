@@ -18,3 +18,10 @@
   {:added "0.1"}
   []
   (b/get-entities-by-type :user))
+
+
+(defn get-user
+  "Retrieves an User by its UUID."
+  {:added "0.1"}
+  [uuid]
+  (b/get-entity-by-uuid uuid))
