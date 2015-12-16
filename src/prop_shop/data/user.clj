@@ -25,3 +25,10 @@
   {:added "0.1"}
   [uuid]
   (b/get-entity-by-uuid uuid))
+
+
+(defn rename-user
+	"Renames the User specified by the UUID with the provided name."
+	{:added "0.1"}
+	[uuid name]
+	(b/update-entity-by-uuid uuid {:name name}))
