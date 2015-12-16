@@ -32,3 +32,10 @@
 	{:added "0.1"}
 	[uuid name]
 	(b/update-entity-by-uuid uuid {:name name}))
+
+
+(defn deactivate-user
+  "Deactivates the User specified by the UUID."
+  {:added "0.1"}
+	[uuid]
+	(b/deactivate-entity uuid))
