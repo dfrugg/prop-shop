@@ -124,20 +124,6 @@
       (is (:inactive-on  entity))
       (is (= (select-keys entity (keys data)) data)))))
 
-(deftest test-query!
-  (testing "Testing the adding data."
-    (let [data {:type :test :name "Bobby Su" :encrypted false}
-          q '{:find [?e]
-            :in [$ ?t]
-            :where [[?e :type ?t]]}
-          _ (add-entity data)
-          entity (first (query! {} q :test))]
-      (is (:id entity))
-      (is (:uuid entity))
-      (is (:active-on  entity))
-      (is (:inactive-on  entity))
-      (is (= (select-keys entity (keys data)) data)))))
-
 
 (deftest test-get-entities-by-type
   (testing "Testing getting entities by their :type."

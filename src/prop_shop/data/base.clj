@@ -37,6 +37,41 @@
   (d/db conn))
 
 
+(defn assoc-if
+  "Will associate the result of a function to a key on the given map if the key is not already there."
+  [m k f]
+  (if (k m) m (assoc m k (f))))
+
+
+(defn ensure-db
+  "Ensures that the db database value is on the given map."
+  [opts]
+  (assoc-if opts :db db))
+
+
+(defn ensure-path-map
+  "Ensures that the path-map map is on the given map."
+  [opts]
+  (assoc-if opts :path-map hash-map))
+
+
+(defn ->opts
+  "Ensures that all values are on the given options map."
+  [opts]
+  (-> opts
+      ensure-db
+      ensure-path-map))
+
+
+(defn opts?
+  "Checks if a map could possibly be the options."
+  [m]
+  (and (map? m)
+       (or (empty? m)
+           (:db m)
+           (:path-map m))))
+
+
 (defn reduce-entity
   "Takes a given entity and reduces the data within it according to the instructions
    within the path-map.  The path-map instructions can be the following:
@@ -71,40 +106,48 @@
 (defn resolve-entity-id
   "Takes the internal ID of an entity, reducing instructions, and an optional
    database value reference, and resolves it to a map of the entity."
-  ([entity-id path-map] (resolve-entity-id entity-id path-map (db)))
-  ([entity-id path-map db]
-    (reduce-entity (d/entity db entity-id) path-map)))
+  ([entity-id] (resolve-entity-id {} entity-id))
+  ([opts entity-id]
+    (let [{:keys [db path-map] :as reqs} (->opts opts)]
+      (reduce-entity (d/entity db entity-id) path-map))))
 
 
 (defn resolve-entity-ids
   "Takes a collection of internal IDs of entities, reducing instructions, and an optional
    database value reference, and resolves it to a map of the entity."
-  ([entity-ids path-map] (resolve-entity-ids entity-ids path-map (db)))
-  ([entity-ids path-map db]
-    (map #(resolve-entity-id % path-map db) (map first entity-ids))))
+  ([entity-ids] (resolve-entity-ids {} entity-ids))
+  ([opts entity-ids]
+    (let [{:keys [db] :as reqs} (ensure-db opts)]
+      (map #(resolve-entity-id reqs %) (map first entity-ids)))))
 
 
 (defn query
-  ([db path-map statement]
-    (let [results (d/q statement db)]
-      (resolve-entity-ids results path-map db)))
-  ([db path-map statement & args]
-    (let [results (apply d/q statement db args)]
-      (resolve-entity-ids results path-map db))))
+  ([statement] (query {} statement))
+  ([opts statement]
+    (let [{:keys [db] :as reqs} (ensure-db opts)
+          results (d/q statement db)]
+      (resolve-entity-ids reqs results))))
 
-(defn query!
-  ([path-map statement]
-    (query (db) path-map statement))
-  ([path-map statement & args]
-    (apply query (db) path-map statement args)))
+
+(defn query-with-args
+  ([opts-or-statement & args]
+   (if (opts? opts-or-statement)
+     (let [{:keys [db] :as reqs} (ensure-db opts-or-statement)
+           statement (first args)
+           values (next args)]
+       (resolve-entity-ids reqs (apply d/q statement db values)))
+     (let [{:keys [db] :as reqs} (ensure-db {})]
+       (resolve-entity-ids reqs (apply d/q opts-or-statement db args))))))
 
 
 (defn transact->entity
-  [trans temp-id path-map]
-  (let [temp-ids (:tempids @trans)
-        db (:db-after  @trans)
-        id (d/resolve-tempid db temp-ids temp-id)]
-    (resolve-entity-id id path-map db)))
+  ([trans temp-id] (transact->entity {} trans temp-id))
+  ([opts trans temp-id]
+    (let [temp-ids (:tempids @trans)
+          db (:db-after  @trans)
+          reqs (assoc opts :db db)
+          id (d/resolve-tempid db temp-ids temp-id)]
+      (resolve-entity-id reqs id))))
 
 
 (defn uuid->id
@@ -121,66 +164,70 @@
   "Takes an entity and persists it.  The active period for the entity is set from
    as far in the past to as far in the future as possible."
   {:added "0.1"}
-  ([entity] (add-entity entity {}))
-  ([entity path-map]
-    (let [temp-id (d/tempid :db.part/user)]
-      (-> (d/transact conn [(merge entity
-                              {:db/id temp-id
-                               :uuid (d/squuid)
-                               :active-on min-date
-                               :inactive-on max-date})])
-        (transact->entity temp-id path-map)))))
+  ([entity] (add-entity {} entity))
+  ([opts entity]
+    (let [temp-id (d/tempid :db.part/user)
+          trans (d/transact conn [(merge entity
+                                   {:db/id temp-id
+                                    :uuid (d/squuid)
+                                    :active-on min-date
+                                    :inactive-on max-date})])]
+      (transact->entity opts trans temp-id))))
 
 
 (defn get-entities-by-type
   "Retrieves all entities of the provided type."
   {:added "0.1"}
-  ([type] (get-entities-by-type (db) type))
-  ([db type]
-   (query db
-          {}
-          '{:find [?e]
-            :in [$ ?t]
-            :where [[?e :type ?t]]}
-          type)))
+  ([type] (get-entities-by-type {} type))
+  ([opts type]
+    (query-with-args opts
+                     '{:find [?e]
+                       :in [$ ?t]
+                       :where [[?e :type ?t]]}
+                     type)))
 
 
 (defn get-entity-by-uuid
   "Takes the UUID of an entity and an optional database value and returns the entity.
    If the database value is not provided, the latest will be used."
   {:added "0.1"}
-  ([uuid] (get-entity-by-uuid (db) uuid))
-  ([db uuid]
-   (first
-     (query db
-            {}
-            '{:find [?e]
-              :in [$ ?u]
-              :where [[?e :uuid ?u]]}
-            uuid))))
+  ([uuid] (get-entity-by-uuid {} uuid))
+  ([opts uuid]
+    (first
+      (query-with-args opts
+                       '{:find [?e]
+                         :in [$ ?u]
+                         :where [[?e :uuid ?u]]}
+                       uuid))))
 
 
 (defn update-entity-by-id
   "Takes the internal ID of an entity and a map of attributes and values
    and updates those attribute values in the entity."
   {:added "0.1"}
-  ([id data] (update-entity-by-id id data {}))
-  ([id data path-map]
-   (d/transact conn [(merge {:db/id id} data)])
-   (resolve-entity-id id path-map)))
+  ([id data] (update-entity-by-id {} id data))
+  ([opts id data]
+    (d/transact conn [(merge {:db/id id} data)])
+    (resolve-entity-id opts id)))
 
 
 (defn update-entity-by-uuid
   "Takes the UUID of an entity and a map of attributes and values and updates those
    attribute values in the entity."
   {:added "0.1"}
-  ([uuid data] (update-entity-by-uuid uuid data {}))
-  ([uuid data path-map] (-> uuid (uuid->id) (update-entity-by-id data path-map))))
+  ([uuid data] (update-entity-by-uuid {} uuid data))
+  ([opts uuid data]
+    (update-entity-by-id opts (uuid->id uuid) data)))
 
 
 (defn deactivate-entity
   "Takes the UUID of an entity and an optional date, and sets the inactive date of the entity.
    If the date is not provided, the current date and time will be used."
   {:added "0.1"}
-  ([uuid] (deactivate-entity uuid (java.util.Date.)))
-  ([uuid date] (update-entity-by-uuid uuid {:inactive-on date})))
+  ([uuid] (deactivate-entity {} uuid (java.util.Date.)))
+  ([opts-or-uuid uuid-or-date]
+    (if (map? opts-or-uuid)
+      (deactivate-entity opts-or-uuid uuid-or-date (java.util.Date.))
+      (deactivate-entity {} opts-or-uuid uuid-or-date)))
+  ([opts uuid date]
+    (update-entity-by-uuid opts uuid {:inactive-on date})))
