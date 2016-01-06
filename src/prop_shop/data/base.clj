@@ -5,7 +5,8 @@
   (:require [clojure.java.io :as io]
             [datomic.api :as d]
             [prop-shop.config :as config])
-  (:import datomic.Util))
+  (:import datomic.Util
+           java.util.UUID))
 
 ;; Define A Connection & Load Schema
 (def conn
@@ -35,6 +36,16 @@
   "Gets the latest value of the database to use in queries and such."
   []
   (d/db conn))
+
+
+(defn uuid->id
+  "Takes the UUID of an entity and returns the internal id."
+  [uuid]
+  (d/q '[:find ?e .
+         :in $ ?u
+         :where [?e :uuid ?u]]
+    (db)
+    uuid))
 
 
 (defn assoc-if
@@ -150,16 +161,6 @@
       (resolve-entity-id reqs id))))
 
 
-(defn uuid->id
-  "Takes the UUID of an entity and returns the internal id."
-  [uuid]
-  (d/q '[:find ?e .
-         :in $ ?u
-         :where [?e :uuid ?u]]
-    (db)
-    uuid))
-
-
 (defn add-entity
   "Takes an entity and persists it.  The active period for the entity is set from
    as far in the past to as far in the future as possible."
@@ -185,6 +186,34 @@
                        :in [$ ?t]
                        :where [[?e :type ?t]]}
                      type)))
+(defn uuid?
+  [value]
+  (or (string? value)
+      (instance? java.util.UUID value)))
+
+
+(defn ->id
+  [value]
+  (cond
+   (number? value) value
+   (instance? UUID value) (uuid->id value)
+   (string? value) (uuid->id (UUID/fromString value))
+   (nil? value) nil
+   :else (if (:id value) (:id value) (->id (:uuid value)))))
+
+
+(defn get-entities-by-type-and-org
+  "Retrieves all entities of the provided type."
+  {:added "0.1"}
+  ([type org] (get-entities-by-type {} type))
+  ([opts type org]
+    (query-with-args opts
+                     '{:find [?e]
+                       :in [$ ?t ?o]
+                       :where [[?e :type ?t]
+                               [?e :organization ?o]]}
+                     type
+                     (->id org))))
 
 
 (defn get-entity-by-uuid

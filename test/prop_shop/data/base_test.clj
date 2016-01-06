@@ -7,6 +7,7 @@
   (testing "Database Connection"
     (is (not (nil? conn)))))
 
+
 ; Needed to fake out the reduce-entity method checks
 (deftype E [contents]
     clojure.lang.IPersistentMap
@@ -113,6 +114,23 @@
       (is (nil? (:aliases result)))
       (is (nil? (:father result))))))
 
+
+(deftest test->id
+  (testing "Testing the ->id function"
+    (let [data {:type :test :name "Bobby Su" :encrypted false}
+          entity (add-entity data)
+          id (:id entity)
+          uuid (:uuid entity)
+          uuid-str (.toString uuid)]
+      (is (= 4 (->id 4)))
+      (is (= 4 (->id {:id 4})))
+      (is (= id (->id entity)))
+      (is (= id (->id uuid)))
+      (is (= id (->id uuid-str)))
+      (is (= id (->id {:uuid uuid-str})))
+
+
+      )))
 
 (deftest test-add-entity
   (testing "Testing the adding data."
