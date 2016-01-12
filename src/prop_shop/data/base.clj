@@ -168,11 +168,12 @@
   ([entity] (add-entity {} entity))
   ([opts entity]
     (let [temp-id (d/tempid :db.part/user)
-          trans (d/transact conn [(merge entity
-                                   {:db/id temp-id
-                                    :uuid (d/squuid)
-                                    :active-on min-date
-                                    :inactive-on max-date})])]
+          trans (d/transact conn [(merge
+                                    {:uuid (d/squuid)
+                                     :active-on min-date
+                                     :inactive-on max-date}
+                                    entity
+                                    {:db/id temp-id})])]
       (transact->entity opts trans temp-id))))
 
 
