@@ -8,7 +8,7 @@
 
 
 (defroutes main-routes
-  (GET "/" [] "Wow")
+  (GET "/" [] (response/redirect "main.htm"))
   (route/not-found "<h1>Not Found!</h1>"))
 
 (defn app
