@@ -14,6 +14,7 @@
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [com.datomic/datomic-pro "0.9.5327" :exclusions [joda-time]]
                  [ring "1.4.0"]
+                 [ring/ring-json "0.4.0"]
                  [compojure "1.4.0"]]
 
   :plugins [[lein-codox "0.9.0"]

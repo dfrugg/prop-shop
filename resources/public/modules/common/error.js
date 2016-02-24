@@ -8,7 +8,7 @@ errorHandler.factory("alertService", ["$timeout", "$rootScope",
         var alerts = [],
             setAlertLevel = function(level) {
                 //If alerts have errors don"t worry other messages
-                if(_.find(alerts, function(alert){ return alert.level === "danger"; })) {
+                if(alerts.filter(function(alert){ return alert.level === "danger"; })) {
                     alerts.level = "danger";
                     return;
                 } else{
@@ -17,7 +17,7 @@ errorHandler.factory("alertService", ["$timeout", "$rootScope",
             },
             removeDuplicateAlerts = function(type) {
                 //Remove any alerts of the same type
-                var existingAlert = _.find(alerts, function(alert){ return alert.type === type; });
+                var existingAlert = alerts.filter(function(alert){ return alert.type === type; });
                 if(existingAlert) {
                     alerts.splice(alerts.indexOf(existingAlert), 1);
                 }
@@ -58,7 +58,7 @@ errorHandler.factory("alertService", ["$timeout", "$rootScope",
                 }
             },
             closeAlertByContext: function(context) {
-                var existingAlert = _.find(alerts, function(alert){ return alert.type === context; });
+                var existingAlert = alerts.filter(function(alert){ return alert.type === context; });
                 if(existingAlert) {
                     alerts.splice(alerts.indexOf(existingAlert), 1);
                 }

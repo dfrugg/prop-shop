@@ -1,3 +1,57 @@
 <div ng-controller="applicationController">
-	<h2>Replace with Application markup</h2>
+    <style>
+        .table
+        {
+            display:table;
+            border-collapse:separate;
+            border-spacing:2px;
+        }
+        .thead
+        {
+            display:table-header-group;
+            color:white;
+            font-weight:bold;
+            background-color:grey;
+        }
+        .tbody
+        {
+            display:table-row-group;
+        }
+        .tr
+        {
+            display:table-row;
+        }
+        .td
+        {
+            display:table-cell;
+            border:1px solid black;
+            padding:1px;
+        }
+        .tr.editing .td input
+        {
+            width:100px;
+        }
+    </style>
+    <form ng-submit="create()">
+        <label for="name">Application Name</label>
+        <input type="text" id="name" ng-model="name"></input>
+        <label for="orgUuid">Organization UUID</label>
+        <input type="text" id="orgUuid" ng-model="orgUuid"></input>
+        <button type="submit">Save</button>
+    </form>
+    <br><br>
+    <div class="table">
+        <div class="tbody">
+            <form class="tr editing" ng-repeat="application in applications" ng-submit="update($index)">
+                <input type="text" class="td" value="{{application.name}}" ng-model="application.name"></input>
+                <input type="text" class="td" value="{{application.uuid}}" ng-model="application.uuid"></input>
+			    <input type="text" class="td" value="{{application.organization.name}}" ng-model="application.organization.name"></input>
+                <input type="text" class="td" value="{{application.organization.uuid}}" ng-model="application.organization.uuid"></input>
+			    <input type="text" class="td" value="{{application['active-on']}}" ng-model="application['active-on']"></input>
+                <input type="text" class="td" value="{{application['inactive-on']}}" ng-model="application['inactive-on']"></input>
+			    <button type="submit">Save</button>
+                <button type="button" ng-click="deactivate($index)">Delete</button>
+            </form>
+        </div>
+    </div>
 </div>
